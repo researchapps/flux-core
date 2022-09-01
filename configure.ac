@@ -520,7 +520,6 @@ AC_CONFIG_FILES( \
   src/common/libzmqutil/Makefile \
   src/bindings/Makefile \
   src/bindings/lua/Makefile \
-  src/bindings/python/Makefile \
   src/broker/Makefile \
   src/cmd/Makefile \
   src/shell/Makefile \

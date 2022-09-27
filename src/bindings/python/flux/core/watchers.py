@@ -11,9 +11,10 @@
 import abc
 import errno
 import signal
+import flux.constants
 from flux.core.inner import raw, lib, ffi
 
-__all__ = ["TimerWatcher", "FDWatcher", "SignalWatcher"]
+__all__ = ["TimerWatcher", "FDWatcher", "SignalWatcher", "HandleWatcher"]
 
 
 class Watcher(object):
@@ -90,6 +91,27 @@ class TimerWatcher(Watcher):
             ),
         )
 
+class HandleWatcher(Watcher):
+    """The HandleWatcher is a meta watcher that watches all other watchers.
+    
+    Thus, the HandleWatcher is nicknamed "Morpheus" !
+    """
+    def __init__(self, flux_handle, callback, args=None):
+        self.callback = callback
+        self.events = flux.constants.FLUX_POLLIN | flux.constants.FLUX_POLLOUT | flux.constants.FLUX_POLLERR 
+        self.args = args
+        self.handle = flux_handle        
+        self.wargs = ffi.new_handle(self)
+        super(HandleWatcher, self).__init__(
+            flux_handle,
+            raw.flux_handle_watcher_create(
+                raw.flux_get_reactor(flux_handle),
+                self.handle,
+                self.events,
+                lib.timeout_handler_wrapper,
+                self.wargs,
+            ),
+        )
 
 @ffi.def_extern()
 def fd_handler_wrapper(unused1, unused2, revents, opaque_handle):

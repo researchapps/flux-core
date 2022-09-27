@@ -254,6 +254,8 @@ class Wrapper(WrapperBase):
         self.filter_match = filter_match
         self.prefixes = prefixes
         self.destructor = destructor
+        # A unique id associated with the handle
+        self.uuid = None
         # this is an error-checking dance to ensure that the class-based caching of
         # callables is safe by only allowing one set of prefixes, filter-matches, etc.
         # per derived class of wrapper

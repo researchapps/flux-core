@@ -10,6 +10,7 @@
 
 import signal
 import threading
+import uuid
 from contextlib import contextmanager
 
 from flux.wrapper import Wrapper
@@ -70,7 +71,7 @@ class Flux(Wrapper):
                 if errmsg:
                     msg += f": {errmsg}"
                 raise OSError(err.errno, msg)
-
+        
         self.aux_txn = None
         self._active_watchers = set()
 

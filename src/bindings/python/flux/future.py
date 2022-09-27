@@ -8,10 +8,12 @@
 # SPDX-License-Identifier: LGPL-3.0
 ###############################################################
 
+import asyncio
 import errno
 
 from typing import Dict
 
+import flux.constants
 from flux.util import check_future_error, interruptible
 from flux.wrapper import Wrapper, WrapperPimpl
 from flux.core.inner import ffi, lib, raw
@@ -54,8 +56,7 @@ def continuation_callback(c_future, opaque_handle):
 
 
 class Future(WrapperPimpl):
-    """
-    A wrapper for interfaces that create and consume flux futures
+    """A wrapper for interfaces that create and consume flux futures
     """
 
     class InnerWrapper(Wrapper):
@@ -100,6 +101,7 @@ class Future(WrapperPimpl):
 
     def stop(self):
         """Stop a future from calling the user callback.
+
         Useful for streaming futures given lack of destroy.
         """
         self.stopped = True
@@ -176,14 +178,71 @@ class Future(WrapperPimpl):
 
     @interruptible
     def get(self):
-        """
-        Base Future.get() method. Does not return a result, just blocks
+        """Base Future.get() method. Does not return a result, just blocks
         until future is fulfilled and throws OSError on failure.
         """
         self.pimpl.flux_future_get(ffi.NULL)
 
     def incref(self):
         self.pimpl.flux_future_incref()
+
+    # asyncio functions
+
+    def __await__(self):
+        """Await to work with asyncio.
+        """        
+        if not hasattr(self, "_loop"):  # pylint: disable=attribute-defined-outside-init
+            self._loop = asyncio.get_running_loop()
+
+        # Ensure we have a handle on the watcher that watches all other handles
+        # This isn't the Python handle, but rather the underlying Flux handle
+        loop_handle = self._loop.selector.handle
+        future_handle = self.get_flux()
+                
+        # Is the future handle the same as the loop handle? If not, add to our watchers
+        # Note this is comparing the underlying Flux handles, not the Python object
+        if future_handle.handle != loop_handle.handle:
+            self._loop.add_handle_watcher(future_handle) 
+
+        if not self.is_ready():
+            self._asyncio_future_blocking = True  # pylint: disable=attribute-defined-outside-init
+
+            # Yielding here tells the task to wait for completion.
+            yield self
+
+        # Remove this future handle from the loop
+        if future_handle.handle != loop_handle.handle:
+            self._loop.remove_handle_watcher(future_handle)
+
+        if not self.is_ready():
+            raise RuntimeError("await wasn't used with future")
+        return self.get()
+
+    def add_done_callback(self, func, *, context=None):
+        """Add a callback to be run when the future becomes done.
+        """
+        if self.is_ready():
+            self._loop.call_soon(func, self, context=context)
+        else:
+            def call_wrapper(_, future):
+                # A wrapper to a future to stop the reactor and run the callback
+                func(future)
+                handle = self.get_flux()
+                reactor = handle.get_reactor()
+                handle.reactor_stop(reactor)
+
+            # self.then alone (if passed directly) provides an extra argument
+            # that the asyncio.Task cannot accept
+            self.then(call_wrapper, self)
+
+    def result(self):
+        """Result is called by asyncio Task (in C) to determine done-ness.
+        """
+        if self.is_ready():
+            return self.get()
+        raise RuntimeError('Result is not ready.')
+
+    __iter__ = __await__  # make compatible with 'yield from'.
 
 
 class WaitAllFuture(Future):

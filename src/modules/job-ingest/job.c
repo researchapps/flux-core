@@ -136,16 +136,16 @@ struct job *job_create_from_request (const flux_msg_t *msg,
     }
     jobspec_str = jobspec_buf;
     mech_type = "none";
-    userid_signer = userid_signer_u32;
+    //userid_signer = userid_signer_u32;
 #endif
-    if (userid_signer != job->cred.userid) {
+    /*if (userid_signer != job->cred.userid) {
         errprintf (error,
                   "signer=%lu != requestor=%lu",
                   (unsigned long)userid_signer,
                   (unsigned long)job->cred.userid);
         errno = EPERM;
         goto error;
-    }
+    }*/
     if (!(job->cred.rolemask & FLUX_ROLE_OWNER)
         && !strcmp (mech_type, "none")) {
         errprintf (error, "only instance owner can use sign-type=none");

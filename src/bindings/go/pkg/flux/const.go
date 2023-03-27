@@ -19,4 +19,3 @@ const (
 	// Llperms as defined in sys/stat.h:196
 	Llperms = 0x5ff140
 )
-

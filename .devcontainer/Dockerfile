@@ -21,8 +21,11 @@ RUN python3 -m pip install IPython && \
 # Assuming installing to /usr/local
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
-# Assuming installing to /usr/local
-ENV LD_LIBRARY_PATH=/usr/local/lib
+# Install Go (if Go bindings desired)
+RUN wget https://go.dev/dl/go1.20.2.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.20.2.linux-amd64.tar.gz
+      
+ENV PATH=$PATH:/usr/local/go/bin:/home/vscode/go/bin
 
 # extra interactive utilities and compilation_database generation
 RUN apt-get update \
@@ -32,6 +35,23 @@ RUN apt-get update \
     gdb \
     less \
     ripgrep
+
+# Install flux-security by hand for now:
+#
+ARG FLUX_SECURITY_VERSION=0.8.0
+WORKDIR /opt
+RUN CCACHE_DISABLE=1 && \
+    V=$FLUX_SECURITY_VERSION && \
+    PKG=flux-security-$V && \
+    URL=https://github.com/flux-framework/flux-security/releases/download && \
+    wget ${URL}/v${V}/${PKG}.tar.gz && \
+    tar xvfz ${PKG}.tar.gz && \
+    cd ${PKG} && \
+    ./configure --prefix=/usr/local --sysconfdir=/etc || cat config.log && \
+    make -j 4 && \
+    make install && \
+    cd .. && \
+    rm -rf flux-security-*
 
 # Add the group and user that match our ids
 RUN groupadd -g ${USER_GID} ${USERNAME} && \

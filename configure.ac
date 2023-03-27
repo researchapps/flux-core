@@ -212,6 +212,14 @@ AC_CHECK_LIB(m, floor)
 AC_ARG_ENABLE([docs],
 	      AS_HELP_STRING([--disable-docs], [disable building docs]))
 
+# Check to build with Go
+#AC_PATH_PROG(GO, go, nogo)
+#AS_IF([test "$ac_cv_path_GO" = "nogo"],AC_MSG_NOTICE([could not find go]),[])
+AM_CONDITIONAL([WITH_GO], [test "X$WITH_GO" != "X"])
+
+#AM_CONDITIONAL([SHELL_WRAPPER], [test "x$with_wrapper" = xtrue])
+
+
 #  Edit PATH to remove $PWD/src/cmd so that AM_PATH_PYTHON doesn't find
 #  flux python script (thus creating a link to itself.) This needs to be
 #  done *before* AX_PYTHON_DEVEL.

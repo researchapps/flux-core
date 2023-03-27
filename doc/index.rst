@@ -32,6 +32,15 @@ flux-core Python Bindings
 
    python/index
 
+
+flux-core Go Bindings
+=====================
+
+.. toctree::
+   :maxdepth: 3
+
+   go/index
+
 Indices and tables
 ==================
 

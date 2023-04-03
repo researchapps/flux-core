@@ -41,6 +41,7 @@ jobs:
           fluxrm/flux-sched:focal \
           sh -c "git config --global --add safe.directory /usr/src && 
                  git fetch && \
+                 git tag -a 0.9999.0 HEAD -m "Temporary tag so it builds" &&
                  ./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \
                 --with-systemdsystemunitdir=/etc/systemd/system \

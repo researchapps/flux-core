@@ -14,7 +14,9 @@ jobs:
           --workdir=$(pwd) \
           --volume=/tmp/libs:/tmp/libs \
           fluxrm/flux-sched:focal \
-          sh -c "cp /usr/lib/*.so /tmp/libs"
+          sh -c "sudo cp /usr/lib/*.so /tmp/libs"
+       sudo chown -R $USER /tmp/libs
+       ls /tmp/libs
 
     - name: Upload results
       uses: actions/upload-artifact@v2-preview
@@ -31,7 +33,7 @@ jobs:
       run: |
        mkdir -p /tmp/libs
        docker run --rm \
-          --workdir=$(pwd) \
+          --workdir=/usr/src \
           --volume=$PWD/:/usr/src \
           --volume=/tmp/libs:/tmp/libs \
           fluxrm/flux-sched:focal \
@@ -43,7 +45,9 @@ jobs:
                 --enable-caliper &&
                make clean &&
                make -j${JOBS} && \
-               cp /usr/lib/*.so /tmp/libs"
+               sudo cp /usr/lib/*.so /tmp/libs"
+       sudo chown -R $USER /tmp/libs
+       ls /tmp/libs
       
     - name: Upload results
       uses: actions/upload-artifact@v2-preview

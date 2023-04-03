@@ -43,7 +43,7 @@ jobs:
           fluxrm/flux-sched:focal \
           sh -c "git config --global --add safe.directory /usr/src && 
                  git config --global user.email ${ACTOR} &&
-                 git config --global user.name "Harry Potter" &&
+                 git config --global user.name HarryPotter &&
                  git tag -a 0.9999.0 HEAD &&
                  ./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \

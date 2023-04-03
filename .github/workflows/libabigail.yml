@@ -16,6 +16,7 @@ jobs:
           fluxrm/flux-sched:focal \
           sh -c "sudo cp /usr/lib/*.so /tmp/libs"
        sudo chown -R $USER /tmp/libs
+       echo "⭐️ Found fluxrm/flux-sched:focal release libs ⭐️"
        ls /tmp/libs
 
     - name: Upload results
@@ -36,6 +37,7 @@ jobs:
           --workdir=/usr/src \
           --volume=$PWD/:/usr/src \
           --volume=/tmp/libs:/tmp/libs \
+          --user root \
           fluxrm/flux-sched:focal \
           sh -c "./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \
@@ -45,7 +47,7 @@ jobs:
                 --enable-caliper &&
                make clean &&
                make -j${JOBS} && \
-               sudo cp /usr/lib/*.so /tmp/libs"
+               cp /usr/lib/*.so /tmp/libs"
        sudo chown -R $USER /tmp/libs
        ls /tmp/libs
       

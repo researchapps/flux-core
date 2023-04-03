@@ -31,6 +31,8 @@ jobs:
     - name: Build Pull Request
       uses: actions/checkout@v3
     - name: Build in Container
+      env:
+        ACTOR: ${{ github.actor }}
       run: |
        mkdir -p /tmp/libs
        docker run --rm \
@@ -41,6 +43,8 @@ jobs:
           fluxrm/flux-sched:focal \
           sh -c "git config --global --add safe.directory /usr/src && 
                  git fetch && \
+                 git config --global user.email "${ACTOR}" && \
+                 git config --global user.name "Harry Potter" && \
                  git tag -a 0.9999.0 HEAD -m "Temporary tag so it builds" &&
                  ./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \

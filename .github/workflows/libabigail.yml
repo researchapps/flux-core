@@ -11,7 +11,7 @@ jobs:
       run: |
        mkdir -p /tmp/libs
        docker run --rm \
-          --workdir=./ \
+          --workdir=$(pwd) \
           --volume=/tmp/libs:/tmp/libs \
           fluxrm/flux-sched:focal \
           sh -c "cp /usr/lib/*.so /tmp/libs"
@@ -31,7 +31,7 @@ jobs:
       run: |
        mkdir -p /tmp/libs
        docker run --rm \
-          --workdir=./ \
+          --workdir=$(pwd) \
           --volume=$PWD/:/usr/src \
           --volume=/tmp/libs:/tmp/libs \
           fluxrm/flux-sched:focal \

@@ -20,7 +20,7 @@ jobs:
        ls /tmp/libs
 
     - name: Upload results
-      uses: actions/upload-artifact@v2-preview
+      uses: actions/upload-artifact@v3
       with:
         name: release-libs
         path: /tmp/libs
@@ -44,7 +44,7 @@ jobs:
           sh -c "git config --global --add safe.directory /usr/src && 
                  git config --global user.email ${ACTOR} &&
                  git config --global user.name HarryPotter &&
-                 git tag -a 0.9999.0 HEAD &&
+                 git tag -a 0.9999.0 HEAD -m weezard &&
                  ./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \
                 --with-systemdsystemunitdir=/etc/systemd/system \
@@ -60,7 +60,7 @@ jobs:
        ls /tmp/libs
       
     - name: Upload results
-      uses: actions/upload-artifact@v2-preview
+      uses: actions/upload-artifact@v3
       with:
         name: pull-request-libs
         path: /tmp/libs

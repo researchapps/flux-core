@@ -16,7 +16,7 @@ jobs:
           fluxrm/flux-sched:focal \
           sh -c "sudo cp /usr/lib/*.so /tmp/libs"
        sudo chown -R $USER /tmp/libs
-       echo "⭐️ Found fluxrm/flux-sched:focal release libs ⭐️"
+       echo "Found fluxrm/flux-sched:focal release libs 🧐️"
        ls /tmp/libs
 
     - name: Upload results
@@ -39,7 +39,8 @@ jobs:
           --volume=/tmp/libs:/tmp/libs \
           --user root \
           fluxrm/flux-sched:focal \
-          sh -c "./autogen.sh &&
+          sh -c "git config --global --add safe.directory /usr/src && 
+                 ./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \
                 --with-systemdsystemunitdir=/etc/systemd/system \
                 --localstatedir=/var \
@@ -49,6 +50,7 @@ jobs:
                make -j${JOBS} && \
                cp /usr/lib/*.so /tmp/libs"
        sudo chown -R $USER /tmp/libs
+       echo "Found pull request built libs 🧐️"
        ls /tmp/libs
       
     - name: Upload results

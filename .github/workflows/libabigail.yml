@@ -40,6 +40,7 @@ jobs:
           --user root \
           fluxrm/flux-sched:focal \
           sh -c "git config --global --add safe.directory /usr/src && 
+                 git fetch && \
                  ./autogen.sh &&
                  ./configure --prefix=/usr --sysconfdir=/etc \
                 --with-systemdsystemunitdir=/etc/systemd/system \
@@ -48,6 +49,7 @@ jobs:
                 --enable-caliper &&
                make clean &&
                make -j${JOBS} && \
+               make install && \
                cp /usr/lib/*.so /tmp/libs"
        sudo chown -R $USER /tmp/libs
        echo "Found pull request built libs 🧐️"

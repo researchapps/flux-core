@@ -1,0 +1,98 @@
+name: Run Libabigail
+on: [pull_request]
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Previous Release
+      uses: actions/checkout@v3
+    - name: Retrieve from Container
+      run: |
+       mkdir -p /tmp/libs
+       docker run --rm \
+          --workdir=./ \
+          --volume=/tmp/libs:/tmp/libs \
+          fluxrm/flux-sched:focal \
+          sh -c "cp /usr/lib/*.so /tmp/libs"
+
+    - name: Upload results
+      uses: actions/upload-artifact@v2-preview
+      with:
+        name: release-libs
+        path: /tmp/libs
+
+  build-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Pull Request
+      uses: actions/checkout@v3
+    - name: Build in Container
+      run: |
+       mkdir -p /tmp/libs
+       docker run --rm \
+          --workdir=./ \
+          --volume=$PWD/:/usr/src \
+          --volume=/tmp/libs:/tmp/libs \
+          fluxrm/flux-sched:focal \
+          sh -c "./autogen.sh &&
+                 ./configure --prefix=/usr --sysconfdir=/etc \
+                --with-systemdsystemunitdir=/etc/systemd/system \
+                --localstatedir=/var \
+                --with-flux-security \
+                --enable-caliper &&
+               make clean &&
+               make -j${JOBS} && \
+               cp /usr/lib/*.so /tmp/libs"
+      
+    - name: Upload results
+      uses: actions/upload-artifact@v2-preview
+      with:
+        name: pull-request-libs
+        path: /tmp/libs
+
+  abi:
+    runs-on: ubuntu-latest
+    needs: [build-release, build-pull-request]
+    strategy:
+      fail-fast: false
+      matrix:
+
+        # Testing every paired library for release vs pr and main vs. pr
+        libs: ["libflux-core.so",
+               "libflux-hostlist.so",
+               "libflux-idset.so",
+               "libflux-optparse.so",
+               "libflux-schedutil.so",
+               "libflux-security.so",
+               "libflux-taskmap.so",
+               "libs3.so"]
+
+        # Artifact pairs (named) for comparison)
+        artifacts: [["release-libs", "pull-request-libs"]]
+
+    steps:
+    - name: Download Previous Version
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ matrix.artifacts[1] }}
+        path: previous/
+
+    - name: Download Pull Request Version
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ matrix.artifacts[0] }}
+        path: current/
+
+    - name: Show Files
+      run: |
+        ls current/
+        ls previous/
+        
+    - name: Run Libabigail
+      uses: buildsi/libabigail-action@main
+      env:
+        lib: ${{ matrix.libs }}
+      with: 
+        abidiff: previous/${{ env.lib }} current/${{ env.lib }}
+

@@ -7,11 +7,12 @@ package core
 #include <stddef.h>
 #include <jansson.h>
 #include <stdlib.h>
-#include "cgo_helpers.h"
+#include "../flux/cgo_helpers.h"
 */
-
 import "C"
 
-func (f *FluxHandle) submit() {
-
+// Submit a job to the system.
+func (f *Flux) Submit(jobspec *JobSpec) *C.flux_future_t {
+	flag := C.int(0)
+	return C.flux_job_submit(f.Handle, jobspec.Encoded(), flag, flag)
 }

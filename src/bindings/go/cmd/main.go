@@ -26,7 +26,10 @@ func main() {
 	future := flux.Submit(jobspec)
 	fmt.Printf("Flux Future: %s\n", future)
 
+	// STOPPED HERE - not sure how to convert back to just a flux future!
 	C.flux_future_wait_all_create()
+	res := C.flux_future_wait_for (C.flux_future_t(future), C.double(-1))
+	fmt.Printf("%s", res)
 	//	from _flux._core import ffi, lib
 
 	//	policy := flag.String("policy", "", "Match policy")

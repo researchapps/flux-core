@@ -5,6 +5,7 @@ AC_INIT([flux-core],
         m4_esyscmd([test -n "$FLUX_VERSION" && printf $FLUX_VERSION || git describe --always | awk '/.*/ {sub(/^v/, ""); printf "%s",$1; exit}']))
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([config])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([NEWS.md])
 AC_CANONICAL_TARGET
 ##
@@ -100,7 +101,7 @@ AC_SUBST([LIBFLUX_TASKMAP_VERSION_INFO])
 ##
 # Checks for programs
 ##
-m4_version_prereq(2.70, [AC_PROG_CC], [AC_PROG_CC_C99])
+m4_version_prereq(2.70, [AC_PROG_CC], [gl_EARLY], [gl_INIT], [AC_PROG_CC_C99])
 AM_PROG_CC_C_O
 AX_COMPILER_VENDOR
 AX_COMPILER_VERSION
@@ -529,6 +530,7 @@ AC_SUBST(fluxlib_ldflags)
 ##
 AC_CONFIG_FILES( \
   Makefile \
+  lib/Makefile \
   src/Makefile \
   src/common/Makefile \
   src/common/libtap/Makefile \

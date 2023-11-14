@@ -1,8 +1,9 @@
 .NOTPARALLEL:
 
-SUBDIRS = . src doc etc t
+SUBDIRS = . lib src doc etc t
 
 EXTRA_DIST = \
+        m4/gnulib-cache.m4 \
 	config/tap-driver.sh \
 	config/tap-driver.py \
 	NOTICE.LLNS \
@@ -14,7 +15,7 @@ EXTRA_DIST = \
 	scripts/install-deps-deb.sh \
 	scripts/install-deps-rpm.sh
 
-ACLOCAL_AMFLAGS = -I config
+ACLOCAL_AMFLAGS = -I config -I m4
 
 # coverage
 
